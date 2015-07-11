@@ -1,5 +1,5 @@
 """
-Django settings for materiales project.
+Django settings for materials project.
 
 For more information on this file, see
 https://docs.djangoproject.com/en/1.7/topics/settings/
@@ -49,9 +49,9 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
-ROOT_URLCONF = 'materiales.urls'
+ROOT_URLCONF = 'materials.urls'
 
-WSGI_APPLICATION = 'materiales.wsgi.application'
+WSGI_APPLICATION = 'materials.wsgi.application'
 
 
 # Database
