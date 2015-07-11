@@ -12,6 +12,9 @@ https://docs.djangoproject.com/en/1.7/ref/settings/
 import os
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
+# import lib celery beat
+from __future__ import absolute_import
+from celery.schedules import timedelta
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.7/howto/deployment/checklist/
@@ -85,3 +88,11 @@ STATIC_URL = '/static/'
 # celery conf
 CELERY_ACCEPT_CONTENT = ['pickle', 'json', 'msgpack', 'yaml']
 CELERY_TIMEZONE = TIME_ZONE
+
+# celery beat conf
+# CELERYBEAT_SCHEDULE = {
+#     'name':{
+#         'task': '',
+#         'schedule': timedelta(seconds=10),
+#     }
+# }
