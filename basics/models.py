@@ -14,12 +14,14 @@ class Process(models.Model):
         max_length=1,
         choices=type_code,
     )
-    active = models.BooleanField()
+    active = models.BooleanField(
+        default=True
+    )
 
     class Meta:
-		unique_together = ('code', 'type_process')
-		verbose_name = u'code [process - activity]'
-		verbose_name_plural = u'code [process - activity]'
+        unique_together = ('code', 'type_process')
+        verbose_name = u'code [process - activity]'
+        verbose_name_plural = u'code [process - activity]'
 
-	def __unicode__(self):
-		return unicode(self.description)
+    def __unicode__(self):
+        return unicode(self.description)
