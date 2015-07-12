@@ -103,10 +103,10 @@ MEDIA_URL = '/media/'
 CELERY_ACCEPT_CONTENT = ['pickle', 'json', 'msgpack', 'yaml']
 CELERY_TIMEZONE = TIME_ZONE
 
-# celery beat conf
-# CELERYBEAT_SCHEDULE = {
-#     'name':{
-#         'task': '',
-#         'schedule': timedelta(seconds=10),
-#     }
-# }
+celery beat conf
+CELERYBEAT_SCHEDULE = {
+    'name':{
+        'task': '',
+        'schedule': timedelta(seconds=10),
+    }
+}
