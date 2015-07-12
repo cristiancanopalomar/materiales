@@ -1,22 +1,7 @@
-# File types #
-##############
+ ;;files to ignore
+settings.py
+ 
+;;extensions to ignore
+*.log
+*.pot
 *.pyc
-*.swo
-*.swp
-*.swn
-
-# Directories #
-###############
-/logs/
-
-# Specific files #
-##################
-/materials/settings.py
-
-# OS generated files #
-######################
-.DS_Store
-ehthumbs.db
-Icon
-Thumbs.db
-*~
