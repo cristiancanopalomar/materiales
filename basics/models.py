@@ -123,13 +123,13 @@ def send_notification(sender, instance, created, **kwargs):
             from_email = "CRISTIAN.CANO@eec.com.co",
             to_email = list(user_group),
             content_email = """
-            Hello,
-            we know that play an important role in our app,
-            so we inform you of the most important changes as follows:
-
-                - in the component module, a new item '{}'' is added.
-
-            for more information, we invite you to enter the admin panel.
+            <h2>Hello,</h2>
+            <p>we know that play an important role in our app,
+            so we inform you of the most important changes as follows:</p>
+            <br>
+            <li>    in the component module, a new item '{}' is added.</li>
+            <br><p>
+            for more information, we invite you to enter the admin panel.</p>
             """.format(instance),
             content_type = 'text/html',
         )
