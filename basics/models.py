@@ -127,7 +127,7 @@ def send_notification(sender, instance, created, **kwargs):
             <p>we know that play an important role in our app,
             so we inform you of the most important changes as follows:</p>
             <br>
-            <li>    in the component module, a new item '{}' is added.</li>
+            <li> in the component module, a new item '{}' is added.</li>
             <br><p>
             for more information, we invite you to enter the admin panel.</p>
             """.format(instance),
