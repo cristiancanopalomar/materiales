@@ -27,7 +27,7 @@ def send_trigger_email(
     response_m = msg.mandrill_response[0]
     response_f = response_m
     if response_f['status'] == 'sent':
-		print """as expected, the message was sent.
+        print """as expected, the message was sent.
         """
     else:
         # msg.error(msg)
