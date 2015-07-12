@@ -27,6 +27,12 @@ TEMPLATE_DEBUG = True
 
 ALLOWED_HOSTS = []
 
+# CONTEXT_PROCESSORS
+from django.conf.global_settings import TEMPLATE_CONTEXT_PROCESSORS as TCP
+
+TEMPLATE_CONTEXT_PROCESSORS = TCP + (
+    "django.core.context_processors.request",
+)
 
 # Application definition
 
@@ -82,7 +88,16 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.7/howto/static-files/
 
+STATIC_ROOT = os.sep.join(os.path.abspath(__file__).split(os.sep)[:-2] + ['static'])
 STATIC_URL = '/static/'
+
+STATICFILES_FINDER = (
+    'django.contrib.staticfiles.finder.FileSystemFinder',
+    'django.contrib.staticfiles.finder.AppDirectoriesFinder',
+)
+
+MEDIA_ROOT = os.sep.join(os.path.abspath(__file__).split(os.sep)[:-2] + ['media'])
+MEDIA_URL = '/media/'
 
 # celery conf
 CELERY_ACCEPT_CONTENT = ['pickle', 'json', 'msgpack', 'yaml']
