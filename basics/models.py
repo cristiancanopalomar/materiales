@@ -91,6 +91,15 @@ class Component(models.Model):
     def __unicode__(self):
         return unicode(self.description)
 
+    # notify users belonging to systems
+    from django.db.models.signals import post_save
+    from django.dispatch import receiver
+
+    @receiver(post_save, sender=Component)
+    def send_notification(sender, instance, created, **kwargs):
+        if created:
+            model.objects.filter(field=instance).update(field_put=True)
+
 
 class Prototype(models.Model):
     """
