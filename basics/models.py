@@ -122,7 +122,15 @@ def send_notification(sender, instance, created, **kwargs):
             subject_email = 'a new item was created',
             from_email = "CRISTIAN.CANO@eec.com.co",
             to_email = list(user_group),
-            content_email = '.... item add {}'.format(instance),
+            content_email = """
+            Hello,
+            we know that play an important role in our app,
+            so we inform you of the most important changes as follows:
+
+                - in the component module, a new item '{}'' is added.
+
+            for more information, we invite you to enter the admin panel.
+            """.format(instance),
             content_type = 'text/html',
         )
 
