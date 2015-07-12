@@ -1,5 +1,8 @@
+import json
 from django.db import models
+from django.contrib.auth.models import User
 from .rename import rename_file
+from .tasks import send_trigger_email
 
 
 class Process(models.Model):
@@ -91,14 +94,37 @@ class Component(models.Model):
     def __unicode__(self):
         return unicode(self.description)
 
-    # notify users belonging to systems
-    from django.db.models.signals import post_save
-    from django.dispatch import receiver
+# notify users belonging to systems
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
-    @receiver(post_save, sender=Component)
-    def send_notification(sender, instance, created, **kwargs):
-        if created:
-            model.objects.filter(field=instance).update(field_put=True)
+@receiver(post_save, sender=Component)
+def send_notification(sender, instance, created, **kwargs):
+    if created:
+        user_group = User.objects.all().values_list(
+            'email',
+            flat=True,
+        ).filter(
+            groups__name='system',
+        )
+        user_admin = json.dumps(
+            list(
+                User.objects.all().values_list(
+                    'email',
+                    flat=True,
+                ).filter(
+                    groups__name='admin',
+                )
+            )
+        )
+
+        send_trigger_email.delay(
+            subject_email = 'a new item was created',
+            from_email = "CRISTIAN.CANO@eec.com.co",
+            to_email = list(user_group),
+            content_email = '.... item add {}'.format(instance),
+            content_type = 'text/html',
+        )
 
 
 class Prototype(models.Model):
@@ -140,5 +166,5 @@ class Prototype(models.Model):
 		verbose_name = u'component serialized'
 		verbose_name_plural = u'component serialized'
 
-	def __unicode__(self):
-		return unicode(self.code_prototype)
+    def __unicode__(self):
+        return unicode(self.code_prototype)
