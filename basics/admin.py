@@ -26,7 +26,7 @@ class ComponentAdmin(admin.ModelAdmin):
     def image_thumbnail(self, obj):
         return '<img src="%s">' % get_thumbnail(obj.image, '50x50', format='PNG').url
     image_thumbnail.allow_tags = True
-    
+
 
 class ProcessAdmin(admin.ModelAdmin):
     fieldsets = (
