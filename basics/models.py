@@ -169,6 +169,9 @@ class Prototype(models.Model):
         max_length=10,
         help_text='other material format (used in gemini)'
     )
+    active_prototype = models.BooleanField(
+        default=True,
+    )
 
     class Meta:
 		unique_together = ('code_prototype', 'type_prototype', 'format_prototype')
