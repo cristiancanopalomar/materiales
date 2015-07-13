@@ -58,6 +58,7 @@ class Component(models.Model):
         'Process',
         limit_choices_to={
             'type_process': 'M',
+            'active_process': True,
         },
     )
     code_component = models.PositiveIntegerField(
