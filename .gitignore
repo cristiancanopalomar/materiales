@@ -17,3 +17,5 @@ media/cache/c2/45/c2450032310bf94a391ef0082f0a2909.png
 *.jpg
 
 materials/settings.py
+
+db.sqlite3
