@@ -3,6 +3,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from .rename import rename_file
 from .tasks import send_trigger_email
+from django.utils.translation import ugettext_lazy as _
 
 
 class Process(models.Model):
@@ -29,6 +30,11 @@ class Process(models.Model):
     type_process = models.CharField(
         max_length=1,
         choices=type_code,
+    )
+    created_process = models.DateTimeField(
+        _('creation date'),
+        auto_now_add=True,
+        help_text='item creation date',
     )
     active_process = models.BooleanField(
         default=True
@@ -83,6 +89,11 @@ class Component(models.Model):
         max_length=2,
         choices=type_unit,
     )
+    created_component = models.DateTimeField(
+        _('creation date'),
+        auto_now_add=True,
+        help_text='item creation date',
+    )
     active_component = models.BooleanField(
         default=True,
     )
@@ -108,17 +119,7 @@ def send_notification(sender, instance, created, **kwargs):
         ).filter(
             groups__name='system',
         )
-        user_admin = json.dumps(
-            list(
-                User.objects.all().values_list(
-                    'email',
-                    flat=True,
-                ).filter(
-                    groups__name='admin',
-                )
-            )
-        )
-
+        # conf email
         send_trigger_email.delay(
             subject_email = 'a new item was created',
             from_email = "CRISTIAN.CANO@eec.com.co",
@@ -169,6 +170,11 @@ class Prototype(models.Model):
         max_length=10,
         help_text='other material format (used in gemini)'
     )
+    created_prototype = models.DateTimeField(
+        _('creation date'),
+        auto_now_add=True,
+        help_text='item creation date',
+    )
     active_prototype = models.BooleanField(
         default=True,
     )
@@ -180,3 +186,73 @@ class Prototype(models.Model):
 
     def __unicode__(self):
         return unicode(self.code_prototype)
+
+
+class Sap(models.Model):
+    type_move = (
+        ('MV', 'sap movement'),
+        ('DT', 'sap destination'),
+        ('DV', 'division'),
+        ('CT', 'storehouse center'),
+        ('AM', 'storehouse')
+    )
+    code_sap = models.CharField(
+        max_length=10,
+        primary_key=True,
+        unique=True,
+    )
+    description = models.CharField(
+        max_length=25,
+        help_text='',
+    )
+    type_sap = models.CharField(
+        max_length=2,
+        choices=type_move,
+    )
+    created_sap = models.DateTimeField(
+        _('creation date'),
+        auto_now_add=True,
+        help_text='item creation date',
+    )
+    active_sap = models.BooleanField(
+        default=True,
+    )
+
+    class Meta:
+		unique_together = ('code_sap', 'description')
+		verbose_name = u'sap records'
+		verbose_name_plural = u'sap records'
+
+    def __unicode__(self):
+        return unicode(self.code_prototype)
+
+
+# @receiver(post_save, sender=Sap)
+# def send_notification(sender, instance, created, **kwargs):
+#     if created:
+#         user_group = User.objects.all().values_list(
+#             'email',
+#             flat=True,
+#         ).filter(
+#             groups__name__in=[
+#                 'area',
+#                 'manager',
+#                 'system',
+#             ]
+#         )
+#         # conf email
+#         send_trigger_email.delay(
+#             subject_email = 'a new item was created',
+#             from_email = "CRISTIAN.CANO@eec.com.co",
+#             to_email = list(user_group),
+#             content_email = """
+#                 <h2>Hello,</h2>
+#                 <p>we know that play an important role in our app,
+#                 so we inform you of the most important changes as follows:</p>
+#                 <br>
+#                 <li> in the sap module, a new item '{}' is added.</li>
+#                 <br><p>
+#                 for more information, we invite you to enter the admin panel.</p>
+#             """.format(instance),
+#             content_type = 'text/html',
+#         )
