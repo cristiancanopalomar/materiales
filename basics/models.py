@@ -1,6 +1,8 @@
 import json
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from .rename import rename_file
 from .tasks import send_trigger_email
 from django.utils.translation import ugettext_lazy as _
@@ -107,9 +109,6 @@ class Component(models.Model):
         return unicode(self.description)
 
 # notify users belonging to systems
-from django.db.models.signals import post_save
-from django.dispatch import receiver
-
 @receiver(post_save, sender=Component)
 def send_notification(sender, instance, created, **kwargs):
     if created:
@@ -119,19 +118,21 @@ def send_notification(sender, instance, created, **kwargs):
         ).filter(
             groups__name='system',
         )
+        ad = Component.objects.all()
+        print ad
         # conf email
         send_trigger_email.delay(
             subject_email = 'a new item was created',
             from_email = "CRISTIAN.CANO@eec.com.co",
             to_email = list(user_group),
             content_email = """
-            <h2>Hello,</h2>
-            <p>we know that play an important role in our app,
-            so we inform you of the most important changes as follows:</p>
-            <br>
-            <li> in the component module, a new item '{}' is added.</li>
-            <br><p>
-            for more information, we invite you to enter the admin panel.</p>
+                <h2>Hello,</h2>
+                <p>we know that play an important role in our app,
+                so we inform you of the most important changes as follows:</p>
+                <br>
+                <li> in the component module, a new item '{}' is added.</li>
+                <br><p>
+                for more information, we invite you to enter the admin panel.</p>
             """.format(instance),
             content_type = 'text/html',
         )
@@ -224,35 +225,35 @@ class Sap(models.Model):
 		verbose_name_plural = u'sap records'
 
     def __unicode__(self):
-        return unicode(self.code_prototype)
+        return unicode(self.description)
 
 
-# @receiver(post_save, sender=Sap)
-# def send_notification(sender, instance, created, **kwargs):
-#     if created:
-#         user_group = User.objects.all().values_list(
-#             'email',
-#             flat=True,
-#         ).filter(
-#             groups__name__in=[
-#                 'area',
-#                 'manager',
-#                 'system',
-#             ]
-#         )
-#         # conf email
-#         send_trigger_email.delay(
-#             subject_email = 'a new item was created',
-#             from_email = "CRISTIAN.CANO@eec.com.co",
-#             to_email = list(user_group),
-#             content_email = """
-#                 <h2>Hello,</h2>
-#                 <p>we know that play an important role in our app,
-#                 so we inform you of the most important changes as follows:</p>
-#                 <br>
-#                 <li> in the sap module, a new item '{}' is added.</li>
-#                 <br><p>
-#                 for more information, we invite you to enter the admin panel.</p>
-#             """.format(instance),
-#             content_type = 'text/html',
-#         )
+@receiver(post_save, sender=Sap)
+def send_notification(sender, instance, created, **kwargs):
+    if created:
+        user_group = User.objects.all().values_list(
+            'email',
+            flat=True,
+        ).filter(
+            groups__name__in=[
+                'area',
+                'manager',
+                'system',
+            ]
+        )
+        # conf email
+        send_trigger_email.delay(
+            subject_email = 'a new item was created',
+            from_email = "CRISTIAN.CANO@eec.com.co",
+            to_email = list(user_group),
+            content_email = """
+                <h2>Hello,</h2>
+                <p>we know that play an important role in our app,
+                so we inform you of the most important changes as follows:</p>
+                <br>
+                <li> in the sap module, a new item '{}' is added.</li>
+                <br><p>
+                for more information, we invite you to enter the admin panel.</p>
+            """.format(instance),
+            content_type = 'text/html',
+        )

@@ -1,4 +1,5 @@
 import os
+import time, datetime
 from uuid import uuid4
 from django.utils.deconstruct import deconstructible
 
@@ -11,3 +12,9 @@ class rename_file(object):
         ext = filename.split('.')[-1]
         filename = '{}.{}'.format(uuid4().hex, ext)
         return os.path.join(self.path, filename)
+
+@deconstructible
+class random(object):
+    def __call__(self):
+        date_time = datetime.datetime.now()
+        return date_time.strftime('%Y%m%d%H%M%S')
