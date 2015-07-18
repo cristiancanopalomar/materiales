@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Requisition, Material, Agree
+from .models import Requisition, Material, Agree, Reserve
 from actions import export_as_excel, export_as_csv
 from django.utils.translation import ugettext, ugettext_lazy as _
 
@@ -15,14 +15,14 @@ class MaterialInline(admin.TabularInline):
 class MaterialAdmin(admin.ModelAdmin):
     fieldsets = (
         (None, {'fields': ('request', 'code_sap',)}),
-        (_('description and features'), {'fields': ('solicitude', 'created_solicitude',)}),
+        (_('description and features'), {'fields': ('solicitude', 'created_solicitude', 'request_reserve',)}),
         (None, {'fields': ('active', 'approved', 'dispatched',)}),
     )
     list_display = ('request', 'code_sap', 'solicitude', 'generated', 'delivered', 'approved', 'dispatched',)
     list_filter = ('request', 'code_sap__code_sap', 'approved', 'dispatched',)
     search_fields = ['request', 'code_sap__code_sap', 'code_sap__description',]
     raw_id_fields = ['request', 'code_sap',]
-    readonly_fields = ('active', 'approved', 'dispatched', 'created_solicitude',)
+    readonly_fields = ('active', 'approved', 'dispatched', 'created_solicitude', 'request_reserve',)
 
     actions = [export_as_excel, export_as_csv]
 
@@ -55,6 +55,24 @@ class AgreeAdmin(admin.ModelAdmin):
     actions = [export_as_excel, export_as_csv]
 
 
+class ReserveAdmin(admin.ModelAdmin):
+    fieldsets = (
+        (None, {'fields': ('request', 'reserve',)}),
+        (_('description and features'), {'fields': ('order', 'sap_movement', 'sap_destination', 'division',)}),
+        (_('support'), {'fields': ('support',)}),
+        (None, {'fields': ('created_reserve', 'closing',)}),
+    )
+    # list_display = ('request', 'description', 'created_agree',)
+    # list_filter = ('request', 'created_agree',)
+    # filter_horizontal = ('material',)
+    # search_fields = ['request', 'description',]
+    readonly_fields = ('created_reserve',)
+
+    actions = [export_as_excel, export_as_csv]
+    inlines = [MaterialInline]
+
+
 admin.site.register(Requisition, RequisitionAdmin)
 admin.site.register(Material, MaterialAdmin)
 admin.site.register(Agree, AgreeAdmin)
+admin.site.register(Reserve, ReserveAdmin)

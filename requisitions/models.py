@@ -1,7 +1,7 @@
 from django.db import models
-from basics.models import Component
-from basics.rename import random
-from django.db.models.signals import post_save
+from basics.models import Component, Sap
+from basics.rename import random, rename_file
+from django.db.models.signals import post_save, m2m_changed
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
 
@@ -32,9 +32,80 @@ class Requisition(models.Model):
         return unicode(self.request)
 
 
+class Reserve(models.Model):
+    request = models.ForeignKey(
+        Requisition,
+        primary_key=True,
+        unique=True,
+    )
+    reserve = models.CharField(
+        max_length=10,
+    )
+    sap_movement = models.ForeignKey(
+        Sap,
+        limit_choices_to={
+            'type_sap': 'MV',
+        },
+        related_name='sap movement',
+    )
+    sap_destination = models.ForeignKey(
+        Sap,
+        limit_choices_to={
+            'type_sap': 'DT',
+        },
+        related_name='sap destination',
+    )
+    division = models.ForeignKey(
+        Sap,
+        limit_choices_to={
+            'type_sap': 'DV',
+        },
+        related_name='division',
+    )
+    order = models.CharField(
+        _('order of budget'),
+        max_length=25,
+    )
+    created_reserve = models.DateTimeField(
+        _('creation date'),
+        auto_now_add=True,
+        help_text='item creation date',
+    )
+    support = models.FileField(
+        upload_to=rename_file(
+            'upload/requisition/reserve',
+        ),
+    )
+    closing = models.BooleanField(
+        default=False,
+    )
+
+    class Meta:
+        unique_together = ('request', 'reserve',)
+        verbose_name = u'reserve'
+        verbose_name_plural = u'reserves'
+
+    def __unicode__(self):
+        return unicode(self.request)
+
+@receiver(post_save, sender=Reserve)
+def update_instance(sender, instance, created, **kwargs):
+    if created:
+        Material.objects.all().filter(
+            request=instance,
+        ).update(
+            request_reserve=instance,
+        )
+
+
 class Material(models.Model):
     request = models.ForeignKey(
         Requisition,
+        help_text='request number',
+    )
+    request_reserve = models.ForeignKey(
+        Reserve,
+        null=True,
         help_text='request number',
     )
     code_sap = models.ForeignKey(
@@ -118,37 +189,29 @@ class Agree(models.Model):
         verbose_name = u'accept request'
         verbose_name_plural = u'accept request'
 
-    def algo(self, obj):
-        return obj.material
-
     def __unicode__(self):
         return unicode(self.request)
 
-
-@receiver(post_save, sender=Agree)
-def send_notification(sender, instance, created, **kwargs):
-    if created:
-        a = Agree.objects.all().values_list('material', flat=True)
-        print a
-
+@receiver(m2m_changed, sender=Agree.material.through)
+def send_notification(sender, instance, action, **kwargs):
+    if action in ['post_add']:
         approve_order = Agree.objects.all().values_list(
             'material',
             flat=True,
         ).filter(
-            request=20150717162413,
+            request=instance,
         )
-        print approve_order
-        user_group = Agree.objects.all().values_list('material', flat=True)
-        print type(user_group)
-        print user_group
-        # Material.objects.filter(
-        #     request=(
-        #         instance,
-        #     ),
-        #     id__in=(
-        #         list(approve_order),
-        #     )
-        # ).update(
-        #     active=False,
-        #     approved=True,
-        # )
+        Material.objects.all().filter(
+            request=instance,
+            id__in=approve_order,
+        ).update(
+            active=False,
+            approved=True,
+        )
+        Material.objects.all().filter(
+            request=instance,
+            active=True,
+            approved=False,
+        ).update(
+            active=False,
+        )
