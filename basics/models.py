@@ -118,8 +118,6 @@ def send_notification(sender, instance, created, **kwargs):
         ).filter(
             groups__name='system',
         )
-        ad = Component.objects.all()
-        print ad
         # conf email
         send_trigger_email.delay(
             subject_email = 'a new item was created',
