@@ -100,6 +100,10 @@ class Component(models.Model):
         default=True,
     )
 
+    @staticmethod
+    def autocomplete_search_fields():
+        return ("code_sap__iexact", "code_component__icontains",)
+
     class Meta:
         unique_together = ('code_component', 'code_sap', 'description')
         verbose_name = u'component not serialized'
@@ -216,6 +220,10 @@ class Sap(models.Model):
     active_sap = models.BooleanField(
         default=True,
     )
+
+    @staticmethod
+    def autocomplete_search_fields():
+        return ("code_sap__iexact", "description__icontains",)
 
     class Meta:
 		unique_together = ('code_sap', 'description')

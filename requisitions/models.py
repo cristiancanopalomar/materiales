@@ -23,6 +23,10 @@ class Requisition(models.Model):
         default=False,
     )
 
+    @staticmethod
+    def autocomplete_search_fields():
+        return ("request__iexact", "request__icontains",)
+
     class Meta:
         unique_together = ('request', 'description')
         verbose_name = u'requisition'
@@ -40,6 +44,7 @@ class Reserve(models.Model):
     )
     reserve = models.CharField(
         max_length=10,
+        unique=True,
     )
     sap_movement = models.ForeignKey(
         Sap,
@@ -122,6 +127,22 @@ class Material(models.Model):
         _('creation date'),
         auto_now_add=True,
         help_text='item creation date',
+    )
+    center = models.ForeignKey(
+        Sap,
+        null=True,
+        limit_choices_to={
+            'type_sap': 'CT',
+        },
+        related_name='storehouse center',
+    )
+    warehouse = models.ForeignKey(
+        Sap,
+        null=True,
+        limit_choices_to={
+            'type_sap': 'AM',
+        },
+        related_name='storehouse',
     )
     generated = models.DecimalField(
         _('quantity generated'),
